@@ -27,7 +27,7 @@ import org.sobadfish.tntrun.room.config.GameRoomConfig;
 public class GameCommand extends Command {
 
     public GameCommand(String name) {
-        super(name,"游戏房间");
+        super(name,"方块下坠游戏房间");
     }
 
 
@@ -40,14 +40,19 @@ public class GameCommand extends Command {
                 if(i != null){
                     info = i;
                 }
-                GameFrom simple = new GameFrom(TotalManager.getTitle(), "请选择地图", DisPlayWindowsFrom.getId(51530, 99810));
+                GameFrom simple = new GameFrom("§c方块§b下坠",
+                        "《方块下坠》是一款以竞技和跑酷为主的小游戏，\n"+
+                                "一般为平面多层，在你经过道路时，身后的方块会消失。\n" +
+                                "你的主要目标是保持自己不掉虚空，\n" +
+                                "奔跑吧！你能成为活到最后的一个的人吗？" +
+                                "", DisPlayWindowsFrom.getId(51530, 99810));
                 PlayerInfo finalInfo = info;
-                simple.add(new BaseIButton(new ElementButton("随机匹配",new ElementButtonImageData("path","textures/ui/dressing_room_skins"))) {
+                /*simple.add(new BaseIButton(new ElementButton("随机匹配",new ElementButtonImageData("path","textures/ui/dressing_room_skins"))) {
                     @Override
                     public void onClick(Player player) {
                         RandomJoinManager.joinManager.join(finalInfo,null);
                     }
-                });
+                });*/
                 for (String wname : TotalManager.getMenuRoomManager().getNames()) {
                     WorldRoom worldRoom = TotalManager.getMenuRoomManager().getRoom(wname);
                     int size = 0;
@@ -57,7 +62,8 @@ public class GameCommand extends Command {
                             size += room.getPlayerInfos().size();
                         }
                     }
-                    simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&', wname + " &2" + size + " &r位玩家正在游玩\n&r房间数量: &a" + worldRoom.getRoomConfigs().size()), worldRoom.getImageData())) {
+                    //simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&', wname + " &2" + size + " &r位玩家正在游玩\n&r房间数量: &a" + worldRoom.getRoomConfigs().size()), worldRoom.getImageData())) {
+                    simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&', "&c方块&b下坠 &r- &l&5"+wname+" \n&r\uE175 "+size))) {
                         @Override
                         public void onClick(Player player) {
                             disPlayRoomsFrom(player, wname);
@@ -137,10 +143,12 @@ public class GameCommand extends Command {
      * */
     private void disPlayRoomsFrom(Player player, String name){
         DisPlayWindowsFrom.FROM.remove(player.getName());
-        GameFrom simple = new GameFrom(TotalManager.getTitle(), "请选择房间",DisPlayWindowsFrom.getId(51530,99810));
+        //GameFrom simple = new GameFrom(TotalManager.getTitle(), "请选择房间",DisPlayWindowsFrom.getId(51530,99810));
+        GameFrom simple = new GameFrom("§c方块§b下坠§r 的房间列表", "请选择房间点击进入：\n§e注意：由于房间人数及状态变动极快,部分房间可能已开始游戏,你将以观战者模式进入",DisPlayWindowsFrom.getId(51530,99810));
         WorldRoom worldRoom = TotalManager.getMenuRoomManager().getRoom(name);
         PlayerInfo info = new PlayerInfo(player);
-        simple.add(new BaseIButton(new ElementButton("随机匹配",new ElementButtonImageData("path","textures/ui/dressing_room_skins"))) {
+        //simple.add(new BaseIButton(new ElementButton("随机匹配",new ElementButtonImageData("path","textures/ui/dressing_room_skins"))) {
+        simple.add(new BaseIButton(new ElementButton("§5随机匹配")) {
             @Override
             public void onClick(Player player) {
                 RandomJoinManager.joinManager.join(info,null);
@@ -149,13 +157,13 @@ public class GameCommand extends Command {
         });
         for (GameRoomConfig roomConfig: worldRoom.getRoomConfigs()) {
             int size = 0;
-            String type = "&a空闲";
+            String type = "&l&5等待中 &r&e可加入";
             GameRoom room = TotalManager.getRoomManager().getRoom(roomConfig.name);
             if(room != null){
                 size = room.getPlayerInfos().size();
                 switch (room.getType()){
                     case START:
-                        type = "&c已开始";
+                        type = "&l&2游戏中 &r&b可观战";
                         break;
                     case END:
                         type = "&c等待房间结束";
@@ -164,7 +172,8 @@ public class GameCommand extends Command {
                 }
             }
 
-            simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&',roomConfig.name+" &r状态:"+type + "&r\n人数: "+size+" / " + roomConfig.getMaxPlayerSize()), worldRoom.getImageData())) {
+            //simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&',roomConfig.name+" &r状态:"+type + "&r\n人数: "+size+" / " + roomConfig.getMaxPlayerSize()), worldRoom.getImageData())) {
+            simple.add(new BaseIButton(new ElementButton(TextFormat.colorize('&',type + "\n&r&4玩家数: "+size+"/" + roomConfig.getMaxPlayerSize()+"  &r&1地图： "+ roomConfig.name))) {
                 @Override
                 public void onClick(Player player) {
                     PlayerInfo playerInfo = new PlayerInfo(player);

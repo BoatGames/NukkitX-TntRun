@@ -579,18 +579,19 @@ public class PlayerInfo {
             levelName = " -- ";
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-        lore.add("&7"+format.format(new Date()));
-        lore.add("游戏模式: &a"+levelName);
+        //lore.add("&7"+format.format(new Date()));
+        //lore.add("游戏模式: &a"+levelName);
 
-        lore.add(" ");
+        //lore.add(" ");
         if(isWait){
-            lore.add("玩家数: &a"+gameRoom.getPlayerInfos().size()+" &r/&a "+gameRoom.getRoomConfig().getMaxPlayerSize());
-            lore.add("等待中....");
-            lore.add("   ");
+            lore.add("\uE175 "+gameRoom.getPlayerInfos().size()+"&7/"+gameRoom.getRoomConfig().getMaxPlayerSize());
+            //lore.add("玩家数: &a"+gameRoom.getPlayerInfos().size()+" &r/&a "+gameRoom.getRoomConfig().getMaxPlayerSize());
+            //lore.add("等待中....");
+            //lore.add("   ");
 
         }else{
 
-            lore.add("游戏结束: &a"+formatTime(getGameRoom().loadTime));
+            //lore.add("游戏结束: &a"+formatTime(getGameRoom().loadTime));
             if(gameRoom.roomConfig.teamConfigs.size() > 1){
                 for(TeamInfo teamInfo: gameRoom.getTeamInfos()){
                     String me = "";
@@ -601,23 +602,26 @@ public class PlayerInfo {
                 }
             }else{
                 TeamInfo teamInfo = gameRoom.getTeamInfos().get(0);
-                lore.add("   ");
-                lore.add(" 存活人数: &a "+teamInfo.getLivePlayer().size() +" &7/&a "+teamInfo.getTeamPlayers().size());
+                //lore.add("   ");
+                lore.add("\uE171 " + teamInfo.getLivePlayer().size()+" &7Left");
+                //lore.add(" 存活人数: &a "+teamInfo.getLivePlayer().size() +" &7/&a "+teamInfo.getTeamPlayers().size());
             }
+            //lore.add("游戏结束: &a"+formatTime(getGameRoom().loadTime));
+            lore.add("\uE182 " + formatTime1(getGameRoom().loadTime));
 
-            lore.add("      ");
-            lore.add("&b击杀数: &a"+killCount);
-            lore.add("&e助攻数: &a"+assists);
+            //lore.add("      ");
+           //lore.add("&b击杀数: &a"+killCount);
+            //lore.add("&e助攻数: &a"+assists);
 
-            lore.add("        ");
+            //lore.add("        ");
         }
         Object obj = TotalManager.getConfig().get("game-logo");
         if(obj instanceof List){
             for(Object s : (List<?>)obj){
-                lore.add(s.toString());
+                //lore.add(s.toString());
             }
         }else{
-            lore.add(TotalManager.getConfig().getString("game-logo","&l&cT&6o&eC&ar&ba&9f&dt"));
+            //lore.add(TotalManager.getConfig().getString("game-logo","&l&cT&6o&eC&ar&ba&9f&dt"));
         }
         return lore;
     }
@@ -639,16 +643,34 @@ public class PlayerInfo {
                 player.setImmobile(true);
 
                 waitTime--;
+                if(waitTime > 0){
+                    switch (waitTime){
+                       /* case 10: sendTitle("");sendActionBar("&e游戏开始 » ▌▌▌▌▌▌▌▌▌▌ &r"+waitTime);break;
+                        case 9: sendActionBar("&e游戏开始 ≫ ▌▌▌▌▌▌▌▌▌&7▌ &r"+waitTime);break;
+                        case 8: sendActionBar("&e游戏开始 ≫ ▌▌▌▌▌▌▌▌&7▌▌ &r"+waitTime);break;
+                        case 7: sendActionBar("&e游戏开始 ≫ ▌▌▌▌▌▌▌&7▌▌▌ &r"+waitTime);break;
+                        case 6: sendActionBar("&e游戏开始 ≫ ▌▌▌▌▌▌&7▌▌▌▌ &r"+waitTime);break;*/
+                        case 5: sendActionBar("&e游戏开始 ≫ ▌▌▌▌▌ &r"+waitTime);break;
+                        case 4: sendActionBar("&e游戏开始 ≫ ▌▌▌▌&8▌ &r"+waitTime);break;
+                        case 3: sendActionBar("&e游戏开始 ≫ &c▌▌▌&8▌▌ &r"+waitTime);addSound(Sound.RANDOM_TOAST);break;
+                        case 2: sendActionBar("&e游戏开始 ≫ &c▌▌&8▌▌▌ &r"+waitTime);addSound(Sound.RANDOM_TOAST);break;
+                        case 1: sendActionBar("&e游戏开始 ≫ &c▌&8▌▌▌▌ &r"+waitTime);addSound(Sound.RANDOM_TOAST);break;
+                        default:
+                            sendTitle("");break;
+
+                    }
+                }
                 if(waitTime <= 0){
                     player.setImmobile(false);
                     //TODO 正式开始
                     sendTitle("&c开始!",2);
                     sendSubTitle("注意脚下安全");
                     isStart = true;
-                }else{
-                    sendTitle("",waitTime);
-                    sendSubTitle("&e "+waitTime+" &6秒后开始");
-                }
+                }/*else{
+                    //sendTitle("",waitTime);
+                    //sendSubTitle("&e "+waitTime+" &6秒后开始");
+                }*/
+
             }
         }
         if(isStart) {
