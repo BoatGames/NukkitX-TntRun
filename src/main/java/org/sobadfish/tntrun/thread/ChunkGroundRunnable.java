@@ -1,12 +1,17 @@
 package org.sobadfish.tntrun.thread;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
+import cn.nukkit.plugin.Plugin;
+import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.scheduler.Task;
@@ -16,6 +21,8 @@ import org.sobadfish.tntrun.player.PlayerInfo;
 import org.sobadfish.tntrun.room.GameRoom;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Sobadfish
@@ -35,15 +42,11 @@ public class ChunkGroundRunnable extends PluginTask<TntRunMain> {
                     if (info.isStart) {
                         //TODO 清除方块
                         if (info.getPlayer().isOnGround()) {
+                            int y = info.getPlayer().getFloorY() - 1;
 
-                            double x =  info.getPlayer().getX();
-                            double y = info.getPlayer().getFloorY();
-                            double z =  info.getPlayer().getZ();
-                            ArrayList<Vector3> blocks = new ArrayList<>();
-                            blocks.add(new Vector3(x,y,z));
-                            blocks.add(new Vector3(x + 1,y,z));
-                            blocks.add(new Vector3(x,y,Math.ceil(z)));
-                            Server.getInstance().getScheduler().scheduleAsyncTask(TotalManager.getPlugin(), new BlockSetRunnable(info.player.getLevel(),blocks));
+                            Server.getInstance().getScheduler().scheduleDelayedTask(TotalManager.getPlugin()
+                                    , new BlockSetRunnable((TntRunMain) TotalManager.getPlugin(),
+                                    info.player.getLevel(),getAllBlocks(info.player,y)),10);
 
                         }
 
@@ -54,25 +57,55 @@ public class ChunkGroundRunnable extends PluginTask<TntRunMain> {
 
     }
 
-    private class BlockSetRunnable extends AsyncTask{
+    private List<Block> getAllBlocks(Entity player, int y) {
+        ArrayList<Block> collisionBlocks = new ArrayList<>();
+        List var1 = this.getCollisionBlocks(player, y);
+        for (Object o : var1) {
+            Block var3 = (Block) o;
+            if (var3.collidesWithBB(player.boundingBox, true)) {
+                collisionBlocks.add(var3);
+            }
 
-        private ArrayList<Vector3> v3;
+        }
+
+        return collisionBlocks;
+    }
+
+
+    private List<Block> getCollisionBlocks(Entity player, int y){
+        List<Block> collisionBlocks = new ArrayList<>();
+        int var1 = NukkitMath.floorDouble(player.boundingBox.minX);
+        int var3 = NukkitMath.floorDouble(player.boundingBox.minZ);
+        int var4 = NukkitMath.ceilDouble(player.boundingBox.maxX);
+        int var6 = NukkitMath.ceilDouble(player.boundingBox.maxZ);
+        for(int var7 = var3; var7 <= var6; ++var7) {
+            for(int var8 = var1; var8 <= var4; ++var8) {
+                Block var10 = player.level.getBlock(player.chunk, var8, y, var7, false);
+                collisionBlocks.add(var10);
+
+            }
+        }
+        return collisionBlocks;
+
+    }
+
+    private class BlockSetRunnable extends PluginTask<TntRunMain>{
+
+        private List<Block> v3;
         private Level level;
-        BlockSetRunnable(Level level, ArrayList<Vector3> v3){
+        BlockSetRunnable(TntRunMain plugin, Level level, List<Block> v3){
+            super(plugin);
             this.v3 = v3;
             this.level = level;
         }
 
+
+
         @Override
-        public void onRun() {
+        public void onRun(int i) {
             for(Vector3 v3: v3){
+                level.setBlock(v3,new BlockAir());
                 level.setBlock(v3.add(0,-1),new BlockAir());
-                level.setBlock(v3.add(0,-2),new BlockAir());
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
